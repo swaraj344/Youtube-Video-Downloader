@@ -1,10 +1,13 @@
 from tkinter import *
 import clipboard
 from model import ytdata
+from urllib.request import urlopen
+from PIL import Image, ImageTk
+from io import BytesIO
 
 
 class gui:
-    url=None
+    url="https://www.youtube.com/watch?v=Y9VgmhxtJFk"
 
     def download_video(self,stream):
         stream.download()
@@ -13,8 +16,9 @@ class gui:
         copytext = clipboard.paste()
         self.tb.delete(0,END)
         self.tb.insert(0,copytext)
-    def dlBtnClicked(self):
         self.url = self.tb.get()
+    def dlBtnClicked(self):
+        # self.url = self.tb.get()
         ytdataobj = ytdata(self.url)
         ytdataobj.load_data()
 
@@ -22,7 +26,7 @@ class gui:
 
 
     def single_widget(self,root,stream):
-        single_widget_frame = Frame(root,)
+        single_widget_frame = Frame(root,borderwidth=2, relief="groove")
         single_widget_frame.pack(fill=X)
         size=stream.filesize
         size=round(size/1048576,2)
@@ -30,14 +34,29 @@ class gui:
         Button(single_widget_frame,text="Download",command=lambda : self.download_video(stream)).pack(padx=10,fill=Y,side=RIGHT)
 
     def view(self,root,ytData):
-        viewFrame = Frame(root, borderwidth=20, relief="flat")
-        viewFrame.place(x=50,y=200)
-        Label(viewFrame,text=ytData.video_title,  borderwidth=2, relief="groove" ,font="bell 10 ",).pack(fill=X,pady=10,padx=12)
+        URL = ytData.thumbnail_url
+        u = urlopen(URL)
+        raw_data = u.read()
+        u.close()
+
+        im = Image.open(BytesIO(raw_data))
+        im = im.resize((400,250), Image.ANTIALIAS)
+        photo = ImageTk.PhotoImage(im)
+
+        viewFrame = Frame(root, borderwidth=2, relief="groove")
+        viewFrame.place(x=95,y=200)
+        label = Label(viewFrame,image=photo)
+        label.image = photo
+        label.pack()
+        video_title = ytData.video_title
+
+        Label(viewFrame,text=video_title[slice(65)]+"...",anchor = W,  borderwidth=2, font="bell 10 ").pack(fill=BOTH,pady=5,padx=6)
         for i in ytData.streamsList:
             self.single_widget(root=viewFrame,stream=i)
 
     def run(self):
         self.root = Tk()
+            
         self.root.geometry("600x600")
         self.root.configure(background='#d7f0f5',)
         self.tb = Entry(self.root,text="paste Your link here",font="bell 14 italic")
