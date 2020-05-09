@@ -60,9 +60,8 @@ class gui:
 
     def run(self):
         self.root.title("Youtube Video Downloader")
-        # img = PhotoImage(file='icon.ico')
-        # self.root.tk.call('wm', 'iconphoto', self.root._w, img)
-        self.root.iconbitmap(bitmap="icon.ico")
+        path = "icon.ico"
+        self.root.iconbitmap(path)
 
         self.root.geometry("620x600")
         self.root.configure(background='#d7f0f5',)
