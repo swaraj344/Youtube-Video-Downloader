@@ -60,7 +60,7 @@ class gui:
 
     def run(self):
         self.root.title("Youtube Video Downloader")
-        path = "icon.ico"
+        path = "./ytdownload/icon.ico"
         self.root.iconbitmap(path)
 
         self.root.geometry("620x600")
