@@ -1,5 +1,4 @@
-from tkinter import *
-import clipboard
+from tkinter import Tk , Button , Entry , Frame ,Canvas ,END ,X,Y,W,LEFT,RIGHT,Label,BOTH,PhotoImage
 from model import ytdata
 from urllib.request import urlopen
 from PIL import Image, ImageTk
@@ -8,7 +7,8 @@ from io import BytesIO
 
 class gui:
     root = Tk()
-    root.iconbitmap("./icon.ico")
+    
+    
     
 
     url="https://www.youtube.com/watch?v=Y9VgmhxtJFk"
@@ -17,7 +17,7 @@ class gui:
         stream.download()
 
     def pasteBtnClicked(self):
-        copytext = clipboard.paste()
+        copytext = self.root.clipboard_get()
         self.tb.delete(0,END)
         self.tb.insert(0,copytext)
         self.url = self.tb.get()
@@ -60,7 +60,9 @@ class gui:
 
     def run(self):
         self.root.title("Youtube Video Downloader")
-        
+        # img = PhotoImage(file='icon.ico')
+        # self.root.tk.call('wm', 'iconphoto', self.root._w, img)
+        self.root.iconbitmap(bitmap="icon.ico")
 
         self.root.geometry("620x600")
         self.root.configure(background='#d7f0f5',)
