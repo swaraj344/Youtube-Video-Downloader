@@ -3,6 +3,7 @@ from model import ytdata
 from urllib.request import urlopen
 from PIL import Image, ImageTk
 from io import BytesIO
+from threading import Thread
 
 
 
@@ -19,12 +20,25 @@ class gui:
         self.tb.delete(0,END)
         self.tb.insert(0,copytext)
         self.url = self.tb.get()
-    def dlBtnClicked(self):
-        # self.url = self.tb.get()
+
+    def loaddata(self):
         ytdataobj = ytdata(self.url)
         ytdataobj.load_data()
-
+        self.msglabel.place_forget()
         self.view(self.root,ytdataobj)
+
+
+    def dlBtnClicked(self):
+        # self.url = self.tb.get()
+        self.msglabel.place(x=200,y=160)
+        self.t1 = Thread(target=self.loaddata)
+
+        self.t1.start()
+        # ytdataobj = ytdata(self.url)
+        # ytdataobj.load_data()
+        # self.msglabel.place_forget()
+        # self.view(self.root,ytdataobj)
+
 
 
     def single_widget(self,root,stream):
@@ -70,10 +84,14 @@ class gui:
         pastebtn.place(x=370,y=100)
         dlbtn = Button(self.root,text="Download",command =self.dlBtnClicked, font="bell 10 bold")
         dlbtn.place(x=450,y=100)
+
+        self.msglabel = Label(self.root,text="Please Wait extracting data..",font="bold 15",bg="#d7f0f5",bd=1,relief="ridge")
         
         
 
         self.root.mainloop()
+
+
 
 
 if __name__ == "__main__":
