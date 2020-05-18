@@ -5,12 +5,10 @@ from PIL import Image, ImageTk
 from io import BytesIO
 
 
+
 class gui:
     root = Tk()
     
-    
-    
-
     url="https://www.youtube.com/watch?v=Y9VgmhxtJFk"
 
     def download_video(self,stream):
