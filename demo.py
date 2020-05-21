@@ -15,14 +15,9 @@ class gui:
     url="https://www.youtube.com/watch?v=Y9VgmhxtJFk"
 
     def download_video(self,stream):
-        # self.progressbar = Progressbar(self.root,orient = HORIZONTAL, 
-        #       length = 400, mode = 'determinate')
-        
-        # self.progressbar.place(x=120,y=160)
         self.dlpopup()
         t2 = Thread(target=stream.download)
         t2.start()        
-        # stream.download()
 
     def dlprogress(self,stream,chunk,bytes):
         total = stream.filesize - bytes
@@ -48,11 +43,11 @@ class gui:
 
 
     def dlBtnClicked(self):
-        self.msglabel.place(x=200,y=160)
-        self.t1 = Thread(target=self.loaddata)
+        # self.msglabel.place(x=200,y=160)
+        # self.t1 = Thread(target=self.loaddata)
 
-        self.t1.start()
-        # self.dlpopup()
+        # self.t1.start()
+        self.dlpopup()
         
 
 
@@ -60,13 +55,14 @@ class gui:
         x = self.root.winfo_x()
         y = self.root.winfo_y()
         self.PopUpRoot = Toplevel(self.root)
-        self.PopUpRoot.geometry("%dx%d+%d+%d" % (440,80,x + 100, y + 200))
+        self.PopUpRoot.geometry("%dx%d+%d+%d" % (440,100,x + 100, y + 200))
         
         self.progressbar = Progressbar(self.PopUpRoot,orient = HORIZONTAL, 
               length = 400, mode = 'determinate')
         Label(self.PopUpRoot,text=f"Downloading..................").place(x=17,y=10)
         
         self.progressbar.place(x=18,y=40)
+        Button(self.PopUpRoot,text="Close",command=self.PopUpRoot.withdraw).place(x=180,y=70,width=100)
 
 
         
