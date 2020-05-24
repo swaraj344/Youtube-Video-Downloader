@@ -1,5 +1,5 @@
-from tkinter import Tk , Button , Entry , Frame ,Canvas ,END ,X,Y,W,LEFT,RIGHT,Label,BOTH,PhotoImage
-from tkinter import *
+from tkinter import Tk , Button , Entry , Frame ,Canvas ,END ,X,Y,W,LEFT,RIGHT,Label,BOTH,PhotoImage,Toplevel,HORIZONTAL,NONE
+# from tkinter import 
 from tkinter.ttk import Progressbar
 from model import ytdata
 from urllib.request import urlopen
@@ -29,6 +29,8 @@ class gui:
 
     filepath = open("./file_path.txt","r").read() 
     root = Tk()
+    root.geometry("620x600")
+
     
     url=""
     # url="https://www.youtube.com/watch?v=Y9VgmhxtJFk"
@@ -37,6 +39,7 @@ class gui:
         print("Checking Internet.....")
         try:
             socket.create_connection(("www.google.com", 80))
+            
             return True
         except OSError:
             pass
@@ -74,30 +77,28 @@ class gui:
         self.tb.insert(0,copytext)
         self.url = self.tb.get()
 
-    def dlpopup(self):
+    def dlpopup(self): #download progress dialog popup window
         self.x = self.root.winfo_x()
         self.y = self.root.winfo_y()
         self.PopUpRoot = Toplevel(self.root)
+        self.PopUpRoot.geometry("%dx%d+%d+%d" % (440,100,self.x + 100, self.y + 200))
         self.PopUpRoot.configure(background=self.Theme2["color2"],)
         self.PopUpRoot.iconbitmap("./icon/icon.ico")
-
-
-        self.PopUpRoot.geometry("%dx%d+%d+%d" % (440,100,self.x + 100, self.y + 200))
-        
+        self.PopUpRoot.resizable(False,False)   
         self.progressbar = Progressbar(self.PopUpRoot,orient = HORIZONTAL, 
               length = 400, mode = 'determinate')
         Label(self.PopUpRoot,text=f"Downloading..................",bg=self.Theme2["color2"]).place(x=17,y=10)
-        
         self.progressbar.place(x=18,y=40)
         Button(self.PopUpRoot,text="Close",command=self.PopUpRoot.withdraw, font="bell 10 bold",borderwidth=0,bg=self.Theme2["color3"],foreground="white").place(x=180,y=70,width=100,height=26)    
         
+    def download_completed(self,stream,file_handle):
+        self.PopUpRoot.withdraw()
 
     def loaddata(self):
         ytdataobj = ytdata(self.url)
         ytdataobj.load_data()
         ytdataobj.yt.register_on_progress_callback(self.dlprogress)
-
-
+        ytdataobj.yt.register_on_complete_callback(self.download_completed)
         self.msglabel.place_forget()
         self.view(self.root,ytdataobj)
 
@@ -106,9 +107,13 @@ class gui:
         if self.Link_validation(self.url):
             if self.Isconnect():
                 self.msglabel.place(x=200,y=160)
+                
+                self.msglabel.config(text="Please Wait extracting data..",fg = "green")
                 self.t1 = Thread(target=self.loaddata)
                 self.t1.start()
             else:
+                self.msglabel.place(x=200,y=160)
+                self.msglabel.config(text="No Internet Check Your Internet Connection",fg = "red")
                 print("no internet")
         else:
             self.invalid_message.place(x=98,y=90)
@@ -134,6 +139,7 @@ class gui:
         y = self.root.winfo_y()
         settingWinRoot = Toplevel(self.root)
         settingWinRoot.grab_set()
+        settingWinRoot.resizable(False,False)
         settingWinRoot.geometry("%dx%d+%d+%d" % (500,200,x + 50,y + 50))
         settingWinRoot.title("Setting")
         settingWinRoot.iconbitmap("./icon/icon.ico")
@@ -184,17 +190,29 @@ class gui:
             self.single_widget(root=viewFrame,stream=i)
 
     def run(self):
-        image3 = Image.open("./icon/settingicon.png")
-        image3 = image3.resize((40, 40), Image.ANTIALIAS)
-        # settingicon = PhotoImage(file = r"./icon/settings.png")
-        settingicon = ImageTk.PhotoImage(image3)
+        
+        settingicon = Image.open("./icon/settingicon.png")
+        settingicon = settingicon.resize((40, 40), Image.ANTIALIAS)
+        settingicon = ImageTk.PhotoImage(settingicon)
+
+        hearticon = Image.open("./icon/heart.png")
+        hearticon = hearticon.resize((30, 30), Image.ANTIALIAS)
+        self.hearticon = ImageTk.PhotoImage(hearticon)
+
+        connectedicon = Image.open("./icon/connected.png")
+        connectedicon = connectedicon.resize((30, 30), Image.ANTIALIAS)
+        self.connectedicon = ImageTk.PhotoImage(connectedicon)
+
+        notconnected = Image.open("./icon/notconnected.png")
+        notconnected = notconnected.resize((30, 30), Image.ANTIALIAS)
+        self.notconnected = ImageTk.PhotoImage(notconnected)
 
         
         self.root.title("Youtube Video Downloader")
         
         self.root.iconbitmap("./icon/icon.ico")
 
-        self.root.geometry("620x600")
+        self.root.resizable(False,True)
         self.root.configure(background=self.Theme2["color2"],)
         self.tb = Entry(self.root,font="bell 12 italic",bg=self.Theme1["color1"])
         
@@ -204,10 +222,25 @@ class gui:
         dlbtn = Button(self.root,text="Download",command =self.dlBtnClicked, font="bell 10 bold",borderwidth=2,relief="flat",bg=self.Theme1["color3"],foreground="white")
         dlbtn.place(x=450,y=100,width = 100,height=30)
 
-        self.msglabel = Label(self.root,text="Please Wait extracting data..",font="bold 15",bg=self.Theme2["color2"],fg="green",bd=1,relief="ridge")
+        self.msglabel = Label(self.root,font="bold 14",bg=self.Theme2["color2"],fg="green",bd=1,relief="ridge")
         Button(self.root,text="hded",image = settingicon,borderwidth=0,command=self.SettingWindow,bg=self.Theme2["color2"]).place(x=550,y=540)
         self.invalid_message = Label(self.root,text="Invalid Link Please Check Your Link",fg="red",bg=self.Theme2['color2'],font="bell 10 bold")
         # invalid_message.place(x=98,y=90)
+        internettext = Label(self.root,bg = self.Theme2['color2'])
+        internettext.place(x=520,y=14)
+        interneticon = Label(self.root ,bg=self.Theme2["color2"])
+        interneticon.place(x=480,y=7)
+        if self.Isconnect():
+            interneticon.config(image=self.connectedicon)
+            internettext.config(text = "Connected",fg = 'green')
+        else:
+            interneticon.config(image = self.notconnected)
+            internettext.config(text = "Not Connected",fg = 'Red')
+
+         
+
+
+
         
         
         
