@@ -6,9 +6,9 @@ from PIL import Image, ImageTk
 from io import BytesIO
 from threading import Thread
 from tkinter.filedialog import askdirectory
-import re
-import socket
+import socket, re,os
 from webbrowser import open as open_url
+
 
 
 
@@ -30,11 +30,16 @@ class gui:
     }
 
     # open file to read file path string
-    filepath = open("./file_path","r").read() 
+    default_path =f"C:\\Users\\{os.getenv('username')}\\Downloads\\Youtube-Video-downloader\\"
+    filetxt = open("./file_path.txt","r").read() 
+    if os.path.isdir(filetxt):
+        filepath = filetxt
+    else:
+        filepath = default_path
     root = Tk()
     root.geometry("620x600")
 
-    
+    viewFrame = Frame()
     url=""
     # url="https://www.youtube.com/watch?v=Y9VgmhxtJFk"
 
@@ -76,6 +81,7 @@ class gui:
         # method execute on paste button click
     def pasteBtnClicked(self):
         self.invalid_message.place_forget()
+        self.viewFrame.place_forget()
         copytext = self.root.clipboard_get()
         self.tb.delete(0,END)
         self.tb.insert(0,copytext)
@@ -120,7 +126,7 @@ class gui:
                 self.t1.start()
             else:
                 self.msglabel.place(x=200,y=160)
-                self.msglabel.config(text="No Internet Check Your Internet Connection",fg = "red")
+                self.msglabel.config(text="No Internet Check Connection",fg = "red")
                 print("no internet")
         else:
             self.invalid_message.place(x=98,y=90)
@@ -130,7 +136,7 @@ class gui:
         self.filepath = askdirectory()
         self.pathLabel.delete(0,END)
         self.pathLabel.insert(0,self.filepath)
-        update_path = open("./file_path","w")
+        update_path = open("./file_path.txt","w")
         update_path.write(self.filepath)
 
         # setting window 
@@ -172,16 +178,16 @@ class gui:
         im = im.resize((440,250), Image.ANTIALIAS)
         photo = ImageTk.PhotoImage(im)
 
-        viewFrame = Frame(root, borderwidth=2, relief="groove",bg=self.Theme1["color4"])
-        viewFrame.place(x=95,y=150)
-        label = Label(viewFrame,image=photo,bg=self.Theme1["color4"])
+        self.viewFrame = Frame(root, borderwidth=2, relief="groove",bg=self.Theme1["color4"])
+        self.viewFrame.place(x=95,y=150)
+        label = Label(self.viewFrame,image=photo,bg=self.Theme1["color4"])
         label.image = photo
         label.pack(padx=5,pady=5)
         video_title = ytData.video_title
 
-        Label(viewFrame,text=video_title[slice(65)]+"...",anchor = W,  borderwidth=2, font="bell 10 bold ",bg=self.Theme1["color4"],fg="white").pack(fill=BOTH,pady=5,padx=2)
+        Label(self.viewFrame,text=video_title[slice(65)]+"...",anchor = W,  borderwidth=2, font="bell 10 bold ",bg=self.Theme1["color4"],fg="white").pack(fill=BOTH,pady=5,padx=2)
         for i in ytData.streamsList:
-            self.single_widget(root=viewFrame,stream=i)
+            self.single_widget(root=self.viewFrame,stream=i)
 
         # method to load icon image
     def icon_widget(self,icon_path,icon_size):
