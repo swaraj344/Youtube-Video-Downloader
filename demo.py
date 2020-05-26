@@ -1,5 +1,4 @@
-from tkinter import Tk , Button , Entry , Frame ,Canvas ,END ,X,Y,W,LEFT,RIGHT,Label,BOTH,PhotoImage,Toplevel,HORIZONTAL,NONE
-# from tkinter import 
+from tkinter import Tk , Button , Entry , Frame ,Canvas ,END ,X,Y,W,LEFT,RIGHT,Label,BOTH,PhotoImage,Toplevel,HORIZONTAL,NONE 
 from tkinter.ttk import Progressbar
 from model import ytdata
 from urllib.request import urlopen
@@ -9,11 +8,14 @@ from threading import Thread
 from tkinter.filedialog import askdirectory
 import re
 import socket
+from webbrowser import open as open_url
 
 
 
 
 class gui:
+
+    # some color defined
     Theme1 = {
        "color1":"#f9f7f7",
        "color2":"#dbe2ef",
@@ -27,7 +29,8 @@ class gui:
        "color4":"#d92027"
     }
 
-    filepath = open("./file_path.txt","r").read() 
+    # open file to read file path string
+    filepath = open("./file_path","r").read() 
     root = Tk()
     root.geometry("620x600")
 
@@ -45,9 +48,9 @@ class gui:
             pass
         return False
 
+    # Validation for url
     def Link_validation(self,link):
         x = re.search(r"(?:v=|\/)([0-9A-Za-z_-]{11}).*", link)
-
 
         if link == "" :
             return False
@@ -57,19 +60,20 @@ class gui:
             return True
             
 
-
+    # method to download video by creating another thread
     def download_video(self,stream):
         self.dlpopup()
         t2 = Thread(target=lambda :stream.download(output_path=self.filepath))
-        
-
         t2.start()        
 
+        # progress callback function
     def dlprogress(self,stream,chunk,bytes):
         total = stream.filesize - bytes
         percent =(total*100)/stream.filesize 
         self.progressbar["value"] = int(percent)
+        self.progresslabel.config(text=f"Total file size : {round(stream.filesize/1048576,2)}                                                Downloaded Size :{round(total/1048576,2)} | {int(percent)}%")
 
+        # method execute on paste button click
     def pasteBtnClicked(self):
         self.invalid_message.place_forget()
         copytext = self.root.clipboard_get()
@@ -77,7 +81,8 @@ class gui:
         self.tb.insert(0,copytext)
         self.url = self.tb.get()
 
-    def dlpopup(self): #download progress dialog popup window
+        #download progress dialog popup window
+    def dlpopup(self): 
         self.x = self.root.winfo_x()
         self.y = self.root.winfo_y()
         self.PopUpRoot = Toplevel(self.root)
@@ -87,13 +92,16 @@ class gui:
         self.PopUpRoot.resizable(False,False)   
         self.progressbar = Progressbar(self.PopUpRoot,orient = HORIZONTAL, 
               length = 400, mode = 'determinate')
-        Label(self.PopUpRoot,text=f"Downloading..................",bg=self.Theme2["color2"]).place(x=17,y=10)
+        self.progresslabel = Label(self.PopUpRoot,text=f"Downloading..................",bg=self.Theme2["color2"])
+        self.progresslabel.place(x=17,y=10)
         self.progressbar.place(x=18,y=40)
         Button(self.PopUpRoot,text="Close",command=self.PopUpRoot.withdraw, font="bell 10 bold",borderwidth=0,bg=self.Theme2["color3"],foreground="white").place(x=180,y=70,width=100,height=26)    
         
+        # on completed callback method
     def download_completed(self,stream,file_handle):
         self.PopUpRoot.withdraw()
 
+        # method which load data by creating the object of ytdata
     def loaddata(self):
         ytdataobj = ytdata(self.url)
         ytdataobj.load_data()
@@ -102,12 +110,11 @@ class gui:
         self.msglabel.place_forget()
         self.view(self.root,ytdataobj)
 
-
+        # method execute of download button click
     def dlBtnClicked(self):
         if self.Link_validation(self.url):
             if self.Isconnect():
-                self.msglabel.place(x=200,y=160)
-                
+                self.msglabel.place(x=200,y=160)                
                 self.msglabel.config(text="Please Wait extracting data..",fg = "green")
                 self.t1 = Thread(target=self.loaddata)
                 self.t1.start()
@@ -117,24 +124,17 @@ class gui:
                 print("no internet")
         else:
             self.invalid_message.place(x=98,y=90)
-
         
-        # self.dlpopup()
-        
-
-
-
-
+        # method which ask for directory  to save the file
     def askSaveDirectory(self):
         self.filepath = askdirectory()
         self.pathLabel.delete(0,END)
         self.pathLabel.insert(0,self.filepath)
-        update_path = open("./file_path.txt","w")
+        update_path = open("./file_path","w")
         update_path.write(self.filepath)
 
-
+        # setting window 
     def SettingWindow(self):
-        
         x = self.root.winfo_x()
         y = self.root.winfo_y()
         settingWinRoot = Toplevel(self.root)
@@ -153,11 +153,6 @@ class gui:
         self.pathLabel.place(x=100,y=20,height=25,width=200)
 
 
-
-        
-        
-
-
     def single_widget(self,root,stream):
         single_widget_frame = Frame(root,borderwidth=2, relief="groove",bg = "#4361ee",height=20)
         single_widget_frame.pack(fill=X,padx=5,pady=5)
@@ -166,8 +161,7 @@ class gui:
         Label(single_widget_frame,bg = "#4361ee",fg="white",text=f"Type: {stream.mime_type}  Resolution: {stream.resolution}          File Size: {size}MB",).pack(fill=Y,side=LEFT)
         Button(single_widget_frame,text="Download",command=lambda : self.download_video(stream),bg=self.Theme1["color4"],foreground="white",relief="flat").pack(padx=10,pady=2,side=RIGHT)
 
-        # 
-
+        # method which show loaded data on download button click
     def view(self,root,ytData):
         URL = ytData.thumbnail_url
         u = urlopen(URL)
@@ -189,29 +183,32 @@ class gui:
         for i in ytData.streamsList:
             self.single_widget(root=viewFrame,stream=i)
 
+        # method to load icon image
+    def icon_widget(self,icon_path,icon_size):
+        icon = Image.open(f"{icon_path}")
+        icon = icon.resize((icon_size,icon_size),Image.ANTIALIAS)
+        icon = ImageTk.PhotoImage(icon)
+        return icon
+
+        # main entry point to run the application
     def run(self):
-        
-        settingicon = Image.open("./icon/settingicon.png")
-        settingicon = settingicon.resize((40, 40), Image.ANTIALIAS)
-        settingicon = ImageTk.PhotoImage(settingicon)
+        instagramlink = "https://www.instagram.com/swaraj.dev_/"
+        githublink = "https://github.com/swaraj344"
+        linkedin = "https://www.linkedin.com/in/swaraj-kumar-b63376171/"
 
-        hearticon = Image.open("./icon/heart.png")
-        hearticon = hearticon.resize((30, 30), Image.ANTIALIAS)
-        self.hearticon = ImageTk.PhotoImage(hearticon)
 
-        connectedicon = Image.open("./icon/connected.png")
-        connectedicon = connectedicon.resize((30, 30), Image.ANTIALIAS)
-        self.connectedicon = ImageTk.PhotoImage(connectedicon)
+        hearticon = self.icon_widget("./icon/heart.png",28)
+        settingicon = self.icon_widget("./icon/settingicon.png",40)
+        connectedicon =self.icon_widget("./icon/connected.png",30)
+        notconnected = self.icon_widget("./icon/notconnected.png",30)
+        instagramicon = self.icon_widget("./icon/instagram.png",24)
+        githubicon = self.icon_widget("./icon/github.png",24)
+        linkedinicon = self.icon_widget("./icon/linkedin.png",24)
 
-        notconnected = Image.open("./icon/notconnected.png")
-        notconnected = notconnected.resize((30, 30), Image.ANTIALIAS)
-        self.notconnected = ImageTk.PhotoImage(notconnected)
 
         
         self.root.title("Youtube Video Downloader")
-        
         self.root.iconbitmap("./icon/icon.ico")
-
         self.root.resizable(False,True)
         self.root.configure(background=self.Theme2["color2"],)
         self.tb = Entry(self.root,font="bell 12 italic",bg=self.Theme1["color1"])
@@ -221,33 +218,27 @@ class gui:
         pastebtn.place(x=340,y=100,width = 100,height=30)
         dlbtn = Button(self.root,text="Download",command =self.dlBtnClicked, font="bell 10 bold",borderwidth=2,relief="flat",bg=self.Theme1["color3"],foreground="white")
         dlbtn.place(x=450,y=100,width = 100,height=30)
-
-        self.msglabel = Label(self.root,font="bold 14",bg=self.Theme2["color2"],fg="green",bd=1,relief="ridge")
+        self.msglabel = Label(self.root,font="bold 14",bg=self.Theme2["color2"],fg="green")
         Button(self.root,text="hded",image = settingicon,borderwidth=0,command=self.SettingWindow,bg=self.Theme2["color2"]).place(x=550,y=540)
         self.invalid_message = Label(self.root,text="Invalid Link Please Check Your Link",fg="red",bg=self.Theme2['color2'],font="bell 10 bold")
-        # invalid_message.place(x=98,y=90)
+        Label(self.root,text ="Made With           By Swaraj Kumar",justify="center",bg=self.Theme2["color2"],font ="bell 9 bold").place(x=198,y=560  )
+        Label(self.root,image = hearticon ,bg=self.Theme2["color2"]).place(x=260 ,y=556)
         internettext = Label(self.root,bg = self.Theme2['color2'])
-        internettext.place(x=520,y=14)
+        internettext.place(x=520,y=14) 
         interneticon = Label(self.root ,bg=self.Theme2["color2"])
         interneticon.place(x=480,y=7)
+        Button(self.root,image=instagramicon,bg =self.Theme2['color2'],borderwidth = 0,command=lambda :  open_url(instagramlink)).place(x=5,y=562)
+        Button(self.root,image=githubicon,bg =self.Theme2['color2'],borderwidth = 0,command=lambda :  open_url(githublink)).place(x=35,y=562)
+        Button(self.root,image=linkedinicon,bg =self.Theme2['color2'],borderwidth = 0,command=lambda :  open_url(linkedin)).place(x=65,y=562)
+
         if self.Isconnect():
-            interneticon.config(image=self.connectedicon)
+            interneticon.config(image=connectedicon)
             internettext.config(text = "Connected",fg = 'green')
         else:
-            interneticon.config(image = self.notconnected)
-            internettext.config(text = "Not Connected",fg = 'Red')
-
-         
-
-
-
-        
-        
-        
+            interneticon.config(image = notconnected)
+            internettext.config(text = "Not Connected",fg = 'Red') 
 
         self.root.mainloop()
-
-
 
 
 if __name__ == "__main__":
