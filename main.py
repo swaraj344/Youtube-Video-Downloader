@@ -41,7 +41,6 @@ class gui:
 
     viewFrame = Frame()
     url=""
-    # url="https://www.youtube.com/watch?v=Y9VgmhxtJFk"
 
     def Isconnect(self):      #method to check internet 
         print("Checking Internet.....")
@@ -198,7 +197,7 @@ class gui:
 
         # main entry point to run the application
     def run(self):
-        instagramlink = "https://www.instagram.com/swaraj.dev_/"
+        instagramlink = "https://www.instagram.com/prog.rammingislove/"
         githublink = "https://github.com/swaraj344"
         linkedin = "https://www.linkedin.com/in/swaraj-kumar-b63376171/"
 
