@@ -19,12 +19,12 @@ class gui:
     Theme1 = {
        "color1":"#f9f7f7",
        "color2":"#dbe2ef",
-       "color3":"#3f72af",
-       "color4":"#112d4e"
+       "color3":"#9927A7",
+       "color4":"#123"
     }
-    Theme2 = {
+    Theme2 = {  
        "color1":"#5fdde5",
-       "color2":"#f4ea8e",
+       "color2":"#DC46EE",
        "color3":"#f37121",
        "color4":"#d92027"
     }
@@ -37,7 +37,7 @@ class gui:
     else:
         filepath = default_path
     root = Tk()
-    root.geometry("620x600")
+    root.geometry("640x600")
 
     viewFrame = Frame()
     url=""
@@ -148,10 +148,10 @@ class gui:
         settingWinRoot.geometry("%dx%d+%d+%d" % (500,200,x + 50,y + 50))
         settingWinRoot.title("Setting")
         settingWinRoot.iconbitmap("./icon/icon.ico")
-        settingWinRoot.configure(background=self.Theme2["color3"],)
-        f1 = Frame(settingWinRoot,width=450, height=500, background="bisque",borderwidth=3,relief = "raised")
+        settingWinRoot.configure(background=self.Theme2["color2"],)
+        f1 = Frame(settingWinRoot,width=450, height=500, background=self.Theme1['color3'],borderwidth=3,relief = "raised")
         f1.pack(fill =NONE, pady=20,padx=10)
-        Label(f1,text="File Path:",font="bell 12 italic",bg="bisque",fg="Black").place(x=10,y=20)
+        Label(f1,text="File Path:",font="bell 12 italic",bg=self.Theme1['color3'],fg="Black").place(x=10,y=20)
         self.pathLabel = Entry(f1,font="bell 10 bold")
         Button(f1,text="Select Path",command = self.askSaveDirectory,borderwidth=2,bg=self.Theme2["color3"],foreground="white").place(x=310,y=20)
         self.pathLabel.insert(0,self.filepath)
@@ -164,7 +164,7 @@ class gui:
         size=stream.filesize
         size=round(size/1048576,2)
         Label(single_widget_frame,bg = "#4361ee",fg="white",text=f"Type: {stream.mime_type}  Resolution: {stream.resolution}          File Size: {size}MB",).pack(fill=Y,side=LEFT)
-        Button(single_widget_frame,text="Download",command=lambda : self.download_video(stream),bg=self.Theme1["color4"],foreground="white",relief="flat").pack(padx=10,pady=2,side=RIGHT)
+        Button(single_widget_frame,text="Download",command=lambda : self.download_video(stream),bg=self.Theme2["color4"],foreground="white",relief="flat").pack(padx=10,pady=2,side=RIGHT)
 
         # method which show loaded data on download button click
     def view(self,root,ytData):
